@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="XLS_PRT"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<!--
+ XLS_PRT - Excel一括印刷
+ !-->
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  
+  'ツールキット生成
+  Set coFFT = New FileFilterToolkit
+  
+  With coFFT
+    '直接ファイルをドロップ用
+    Call .GetOptArgs(WScript.Arguments)
+    
+    'ファイルパスを指定 第２引数は再帰するかどうか
+    'Call .AddFiles("<適当なファイルパス>\*.xls", True)
+    
+    Call .SetOrder("PATH", "ASC")
+    Call .SetFilter("XLS_PRT", New XLS_PRT)
+    Call .Execute
+'    Call .View
+  End With
+  
+End Sub
+
+Class XLS_PRT
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    FilterName = "XLS_PRT"
+    FilterType = "Xls"
+    With argFFT
+      .Options("XLS_Visible") = True
+    End With
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'ファイル処理
+  Public Function ProcessBook(argFFT, argImpBook, argWrkFile)
+    For Each oSht In argImpBook.Sheets
+      'シート名で絞り込みたい場合はここに条件を挿入
+      'If InStr(oSht.Name,"レイアウト") > 0 Then
+        oSht.PrintOut ' Copies:=1, Collate:=True
+      'End If
+    Next
+    ProcessBook = False
+  End Function
+End Class
+
+]]>
+</script>
+</job>
+</package>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="ModifyOnly"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  
+  'ツールキット生成
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .SetModifyOnly("ModifyOnly.mdb")
+    .Options("GetOptArgsDisableAddFile") = True
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("Empty", .FFT_Empty) '何もせずに受け渡すだけのフィルタ
+    sNow = Replace(Replace(Now,"/",""),":","")
+    Call .SetRename("(" & Replace(.Path,"\","\\") & "\\)([^\\]+)(\\[^\\]+)","\1\2 Modified on " & sNow & "\3")
+    Call .Execute
+    MsgBox "ended"
+  End With
+  
+End Sub
+
+]]>
+</script>
+</job>
+</package>

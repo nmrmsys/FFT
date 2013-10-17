@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="SortUniq"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("Sort", .FFT_Sort(""))
+    Call .SetFilter("Uniq", .FFT_Uniq(""))
+    Call .SetRename("^(.*)(\..*)$","\1_sort_uniq\2")
+    Call .Execute
+'    Call .View
+  End With
+End Sub
+
+]]>
+</script>
+</job>
+</package>

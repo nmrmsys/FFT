@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="FilterTemplate"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetMatchFilter("LineFilter",    New LineFilter,    "!\.(xls)$")
+    Call .SetMatchFilter("FileFilter",    New FileFilter,    "!\.(xls)$")
+    Call .SetMatchFilter("CommandFilter", New CommandFilter, "!\.(xls)$")
+    Call .SetMatchFilter("XlsFilter",     New XlsFilter,      "\.(xls)$")
+    Call .SetRename("^(.*)$","\1\.flt")
+    Call .Execute
+    Call .View
+  End With
+End Sub
+
+'行フィルタオブジェクト
+Class LineFilter
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    With argFFT
+      FilterName = "LineFilter"
+      FilterType = "Line"
+    End With
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'ファイルオープン
+  Public Function OpenFile(argFFT, argImpFile, argWrkFile)
+    OpenFile = True
+  End Function
+  'ファイルクローズ
+  Public Function CloseFile(argFFT, argImpFile, argWrkFile)
+    CloseFile = True
+  End Function
+  '行処理
+  Public Function ProcessLine(argFFT, argLine)
+    With argFFT
+      '行に対する処理をおこなう
+      argLine = Ucase(argLine)
+      ProcessLine = True
+    End With
+  End Function
+End Class
+
+'ファイルフィルタオブジェクト
+Class FileFilter
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    FilterName = "FileFilter"
+    FilterType = "File"
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'ファイル処理
+  Public Function ProcessFile(argFFT, argImpFile, argWrkFile)
+    With argFFT
+      'ファイルに対する処理をおこなう
+      '何もせずにコピー、実際には読込/書出などを行なう
+      Call .CopyFile(argImpFile, argWrkFile)
+      ProcessFile = True
+    End With
+  End Function
+End Class
+
+'コマンドフィルタオブジェクト
+Class CommandFilter
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    FilterName = "CommandFilter"
+    FilterType = "Command"
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'コマンド処理
+  Public Function ProcessCommand(argFFT, argImpFile, argWrkFile)
+    With argFFT
+      '実行するコマンドを組み立て
+      sCommand = "SORT """ & argImpFile & """"
+      'コマンドを実行し標準出力をファイルに書き出す
+      Call .RunCommand(sCommand, argWrkFile)
+      ProcessCommand = True
+    End With
+  End Function
+End Class
+
+'Xlsフィルタオブジェクト
+Class XlsFilter
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    FilterName = "XlsFilter"
+    FilterType = "Xls"
+    With argFFT
+'      .Options("XLS_Visible") = True
+    End With
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'ブック処理
+  Public Function ProcessBook(argFFT, argImpBook, argWrkFile)
+    With argFFT
+      Set WrkFile = OpenWriteTextFile(argWrkFile)
+      WrkFile.WriteLine .GFN(.ProcessFilePath)
+      For Each oSht In argImpBook.WorkSheets
+        WrkFile.WriteLine "  " & oSht.Name
+      Next
+      WrkFile.Close
+      ProcessBook = True
+    End With
+  End Function
+End Class
+
+]]>
+</script>
+</job>
+</package>

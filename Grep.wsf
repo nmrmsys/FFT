@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="Grep"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+'===================================================================================================
+'= Grep.wsf - 正規表現一括検索ツール
+'===================================================================================================
+
+Call Main
+
+Sub Main
+  Dim mcmd, delim, params, ptn, opt
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .GetOptPrompt("mcmd","m/検索パターン/オプション" & _
+                              vbLf & _
+                              vbLf & _
+                              "ファイル名に_grepを付けたファイルに出力" & _
+                              "区切り文字は # や @ など自由に指定可能" ,"")
+    mcmd = .Options("mcmd")
+    If mcmd = "" Then
+      Exit Sub
+    End If
+    If LCase(Left(mcmd,1)) = "m" Then
+      mcmd = Mid(mcmd,2)
+    End If
+    delim = Left(mcmd,1)
+    params = Split(mcmd,delim)
+    If Ubound(params) <> 2 Then
+      msgbox "指定コマンドの形式が不正です", , .Name
+      Exit Sub
+    End If
+    ptn = params(1)
+    opt = params(2)
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("Grep", .FFT_Grep(ptn, opt))
+    Call .SetRename("^(.*)(\..*)$","\1_grep\2")
+    Call .Execute
+    Call .View
+  End With
+End Sub
+
+]]>
+</script>
+</job>
+</package>

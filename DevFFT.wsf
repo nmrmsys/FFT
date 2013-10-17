@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="DevFFT"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  
+  'ツールキット生成
+  Set coFFT = New FileFilterToolkit
+  
+  With coFFT
+    Call .SetModifyOnly("ModifyOnly.mdb")
+    Call .GetOptArgs(WScript.Arguments)
+'    Call .SetModifyOnly("")
+    Call .SetMatchFilter("Sort", .FFT_Sort("-r"),"nosort")
+    Call .SetFilter("Uniq", .FFT_Uniq("-c"))
+'    Call .SetBackup("^(.*)(\..*)$","\1_bak\2")
+    Call .SetRename("^(.*)(\..*)$","\1_ren\2")
+    Call .Execute
+    msgbox "ended"
+    Exit Sub
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("ModifyOnly", ModifyOnly("ModifyOnly.mdb"))
+    Call .SetFilter("Uniq", .FFT_Uniq("-c"))
+    Call .SetRename("^(.*)(\..*)$","\1_\2")
+    Call .Execute
+    msgbox "ended"
+    Exit Sub
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetMatchFilter("Sort", .FFT_Sort("-r"),"nosort")
+    Call .SetFilter("Uniq", .FFT_Uniq("-c"))
+    Call .SetRename("^(.*)(\..*)$","\1_\2")
+    Call .Execute
+    Call .View
+    Exit Sub
+    Call .GetOptChoice("opt1", "[x]Enter opt1", "OK/CANCEL", "CANCEL")
+    Exit Sub
+    
+    Call .AddFiles("C:\VSS\ASP\WING\WER\xls\*.xls",True)
+    For i = 0 to .Files.Count - 1
+      msgbox .Files(i)
+    Next
+    Exit Sub
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("MyGrep", .FFT_Grep("FA.9",""))
+    Call .Execute
+    Call .View
+    Exit Sub
+    
+    .Mode = ""
+    msgbox .S("ABCDE",".C.","ZZZ","")
+    Exit Sub
+    If .M("ABCDE",".C.","") Then
+      msgbox "T"
+    Else
+      msgbox "F"
+    End If
+    Exit Sub
+
+    Call .AddFiles("C:\VSS\ASP\WING\WER\xls\*.xls",True)
+    For i = 0 to .Files.Count - 1
+      msgbox .Files(i)
+    Next
+    Exit Sub
+    
+    Call .GetOptArgs(WScript.Arguments)
+    
+    For i = 0 to .Files.Count - 1
+      msgbox .Files(i)
+    Next
+    
+    .SetOrder "modified", "ASC"
+    
+    For i = 0 to .Files.Count - 1
+      msgbox .Files(i)
+    Next
+    
+  End With
+  
+End Sub
+
+]]>
+</script>
+</job>
+</package>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="VbLCmtDel"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+'===================================================================================================
+'= VbLCmtDel.wsf - VBソースコードの行コメント削除
+'===================================================================================================
+
+Call Main
+
+Sub Main
+  
+  'ツールキット生成
+  Set coFFT = New FileFilterToolkit
+  
+  With coFFT
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetRename("$", ".cln")
+    Call .SetFilter("VbLCmtDel", New VbLCmtDel)
+    Call .Execute
+'    Call .View
+  End With
+  
+End Sub
+
+'VBソースコードの行コメント削除 行フィルタオブジェクト
+Class VbLCmtDel
+  Public FilterName
+  Public FilterType
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    With argFFT
+      FilterName = "VbLCmtDel"
+      FilterType = "Line"
+    End With
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+  End Sub
+  'ファイルオープン
+  Public Function OpenFile(argFFT, argImpFile, argWrkFile)
+    OpenFile = True
+  End Function
+  'ファイルクローズ
+  Public Function CloseFile(argFFT, argImpFile, argWrkFile)
+    CloseFile = True
+  End Function
+  '行処理
+  Public Function ProcessLine(argFFT, argLine)
+    If Not argFFT.M(argLine,"^[ \t　]*'", "") Then
+      ProcessLine = True
+    End If
+  End Function
+End Class
+
+]]>
+</script>
+</job>
+</package>

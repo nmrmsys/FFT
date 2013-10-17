@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="WRD_PRT"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<!--
+ WRD_PRT - Word一括印刷
+ !-->
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  
+  'ツールキット生成
+  Set coFFT = New FileFilterToolkit
+  
+  With coFFT
+    '直接ファイルをドロップ用
+    Call .GetOptArgs(WScript.Arguments)
+    
+    'ファイルパスを指定 第２引数は再帰するかどうか
+    'Call .AddFiles(.Path & "\*.doc", True)
+    
+    Call .SetOrder("PATH", "ASC")
+    Call .SetFilter("WRD_PRT", New WRD_PRT)
+    Call .Execute
+'    Call .View
+  End With
+  
+End Sub
+
+Class WRD_PRT
+  Public FilterName
+  Public FilterType
+  Public WRD
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    FilterName = "WRD_PRT"
+    FilterType = "File"
+    Set WRD = CreateObject("Word.Application")
+    WRD.Visible = True
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+    WRD.Quit 0
+  End Sub
+  'ファイル処理
+  Public Function ProcessFile(argFFT, argImpFile, argWrkFile)
+    WRD.Documents.Open argImpFile
+    WRD.Options.PrintBackground = False
+    WRD.ActiveDocument.PrintOut
+    WRD.ActiveDocument.Saved = True
+    WRD.ActiveDocument.Close
+    ProcessFile = False
+  End Function
+End Class
+
+]]>
+</script>
+</job>
+</package>

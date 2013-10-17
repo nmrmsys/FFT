@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="ListupListener"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+Call Main
+
+Sub Main
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("LineFilter", New LineFilter)
+    Call .SetRename("^(.*)$","\1\.txt")
+    Call .Execute
+    Call .WSH.Run("notepad """ & .Path & "\ListupListener.txt" & """")
+  End With
+End Sub
+
+'行フィルタオブジェクト
+Class LineFilter
+  Public FilterName
+  Public FilterType
+  Private HST, USR, PGM
+  'フィルタ初期処理
+  Public Sub Initialize(argFFT)
+    With argFFT
+      FilterName = "LineFilter"
+      FilterType = "Line"
+      Set HST = CreateObject("Scripting.Dictionary")
+      Set USR = CreateObject("Scripting.Dictionary")
+      Set PGM = CreateObject("Scripting.Dictionary")
+    End With
+  End Sub
+  'フィルタ終了処理
+  Public Sub Terminate(argFFT)
+    Set TXT = OpenWriteTextFile(argFFT.Path & "\ListupListener.txt")
+    TXT.WriteLine "[HOST]"
+    arSRT = argFFT.Sort(HST.Keys)
+    For Each sHST In arSRT
+      arHST = Split(sHST,vbTab)
+      TXT.WriteLine Right("   " & HST(sHST),4) & " " & Left(arHST(0) & "     ",12) & arHST(1)
+    Next
+    TXT.WriteLine ""
+    TXT.WriteLine "[USER]"
+    arSRT = argFFT.Sort(USR.Keys)
+    For Each sUSR In arSRT
+      TXT.WriteLine Right("   " & USR(sUSR),4) & " " & sUSR
+    Next
+    TXT.WriteLine ""
+    TXT.WriteLine "[PROGRAM]"
+    arSRT = argFFT.Sort(PGM.Keys)
+    For Each sPGM In arSRT
+      TXT.WriteLine Right("   " & PGM(sPGM),4) & " " & sPGM
+    Next
+    TXT.Close
+  End Sub
+  'ファイルオープン
+  Public Function OpenFile(argFFT, argImpFile, argWrkFile)
+    OpenFile = True
+  End Function
+  'ファイルクローズ
+  Public Function CloseFile(argFFT, argImpFile, argWrkFile)
+    CloseFile = False
+  End Function
+  '行処理
+  Public Function ProcessLine(argFFT, argLine)
+    With argFFT
+      If .M(argLine, "CONNECT_DATA", "") Then
+        sFlds = .S(argLine, ".*PROGRAM=(.*)\).*HOST=(.*)\).*USER=(.*)\)\)\).*HOST=(.*)\)\(.*", "\1\t\2\t\3\t\4", "")
+        If InStr(sFlds,vbTab) > 0 Then
+'          argLine = sFlds
+'          ProcessLine = True
+          arFlds = Split(sFlds,vbTab)
+          sHST = arFlds(1) & vbTab & arFlds(3)
+          sUSR = arFlds(2)
+          sPGM = arFlds(0)
+          If Not HST.Exists(sHST) Then
+            Call HST.Add(sHST,1)
+          Else
+            HST(sHST) = HST(sHST) + 1
+          End If
+          If sUSR <> "" Then
+            If Not USR.Exists(sUSR) Then
+              Call USR.Add(sUSR,1)
+            Else
+              USR(sUSR) = USR(sUSR) + 1
+            End If
+          End If
+          If sPGM <> "" Then
+            If Not PGM.Exists(sPGM) Then
+              Call PGM.Add(sPGM,1)
+            Else
+              PGM(sPGM) = PGM(sPGM) + 1
+            End If
+          End If
+        End If
+      End If
+    End With
+  End Function
+End Class
+
+]]>
+</script>
+</job>
+</package>

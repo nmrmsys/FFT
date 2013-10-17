@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="Shift_JIS" standalone="yes" ?>
+<package><job id="sed"><?job error="True" debug="True" ?>
+<script language="VBScript" src="./FFTLIB.vbs"></script>
+<script language="VBScript">
+<![CDATA[
+
+'===================================================================================================
+'= sed.wsf - 正規表現一括置換ツール
+'===================================================================================================
+
+Call Main
+
+Sub Main
+  Dim scmd, delim, params, ptn, rep, opt
+  Set coFFT = New FileFilterToolkit
+  With coFFT
+    Call .GetOptPrompt("scmd","s/検索パターン/置換パターン/オプション" & _
+                              vbLf & _
+                              vbLf & _
+                              "ファイル名に_sedを付けたファイルに出力" & _
+                              "区切り文字は # や @ など自由に指定可能" ,"")
+    scmd = .Options("scmd")
+    If scmd = "" Then
+      Exit Sub
+    End If
+    If LCase(Left(scmd,1)) = "s" Then
+      scmd = Mid(scmd,2)
+    End If
+    delim = Left(scmd,1)
+    params = Split(scmd,delim)
+    If Ubound(params) <> 3 Then
+      msgbox "指定コマンドの形式が不正です", , .Name
+      Exit Sub
+    End If
+    ptn = params(1)
+    rep = params(2)
+    opt = params(3)
+    Call .GetOptArgs(WScript.Arguments)
+    Call .SetFilter("Sed", .FFT_Sed(ptn, rep, opt))
+    Call .SetRename("^(.*)(\..*)$","\1_sed\2")
+    Call .Execute
+    Call .View
+  End With
+End Sub
+
+]]>
+</script>
+</job>
+</package>
