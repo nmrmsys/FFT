@@ -1,5 +1,5 @@
 '===================================================================================================
-'= FFT - File_Filter_Toolkit v0.4.0
+'= FFT - File_Filter_Toolkit v0.4.1
 '===================================================================================================
 '
 ' オプション処理 GetOptArgs, GetOptChoice, GetOptPrompt, GetOptDialog 以降は未実装 GetOptIni, GetOptReg
@@ -8,7 +8,7 @@
 ' 組込フィルタ   Grep, Sed, Tr, Sort, Uniq, Empty, Contains 以降は未実装 Cut, Wc, Cat, Split, Tee, Head, Tail
 ' 処理実行、他   Execute, View, Show, Resources, LoadResourceFile
 ' ユーティリティ M, S, CreateObject, GetTempName, GPN, GFN, GBN, GEN, Split, Sort, Tokenize
-'                GetWinFolder, GetSysFolder, GetTempFolder, GetTempFile, LenB, LPAD, RPAD
+'                GetWinFolder, GetSysFolder, GetTempFolder, GetTempFile, LenB, MidB, LeftB, RightB, LPAD, RPAD
 '                OpenMDBFile, OpenXMLFile
 '                TextFileクラス, IE_IPCクラス
 '
@@ -1166,6 +1166,104 @@ Class FileFilterToolkit
       End If
     Next
     LenB = nLen
+  End Function
+  
+  Function MidB(ByVal strSjis, ByVal lngStartPos, ByVal lngGetByte)
+  ' strSjis:      切り出す文字列
+  ' lngStartPos:  開始位置
+  ' lngGetByte:   取得バイト数（"" 時は lngStartPos 以降全て）
+  ' blnZenFlag:   全角文字が区切り位置で分割するときの動作
+  '               True= スペースに変換, False= そのまま出力
+  
+  blnZenFlag = True
+  
+      Dim lngByte             ' バイト数
+      Dim lngLoop             ' ループカウンタ
+      Dim strChkBuff          ' 確認用バッファ
+      Dim strLastByte         ' 最終バイト
+
+      On Error Resume Next
+
+      MidB = ""
+      If lngGetByte = "" Then
+          ' 最大文字数をセットしておく
+          lngGetByte = Len(strSjis) * 2
+      End If
+      lngGetByte = CLng(lngGetByte)
+
+      ' 開始位置
+      lngByte = 0
+      For lngLoop = 1 To Len(strSjis)
+          strChkBuff = Mid(strSjis, lngLoop, 1)
+          If (Asc(strChkBuff) And &HFF00) = 0 Then
+              lngByte = lngByte + 1
+          Else
+              lngByte = lngByte + 2
+              ' 全角の２バイト目が開始位置のとき
+              If lngByte = lngStartPos Then
+                  If blnZenFlag = True Then
+                      MidB = " "
+                  Else
+                      MidB = Asc(strChkBuff) And &H00FF
+                      If MidB < 0 Then
+                          MidB = 256 + MidB
+                      End If
+                      MidB = ChrB(MidB)
+                  End If
+                  lngLoop = lngLoop + 1
+              End If
+          End If
+          If lngByte >= lngStartPos Then
+              Exit For
+          End If
+      Next
+
+      ' 取得
+      lngByte = LenB(MidB)
+      If lngByte < lngGetByte Then
+          For lngLoop = lngLoop To Len(strSjis)
+              strChkBuff = Mid(strSjis, lngLoop, 1)
+              MidB = MidB & strChkBuff
+              If (Asc(strChkBuff) And &HFF00) = 0 Then
+                  lngByte = lngByte + 1
+              Else
+                  lngByte = lngByte + 2
+              End If
+              If lngByte >= lngGetByte Then
+                  Exit For
+              End If
+          Next
+      End If
+
+      lngByte = LenAscByte(MidB)
+      If lngByte > lngGetByte Then
+          ' 終端が全角１バイト目のとき。意味ないかも（笑）
+          If blnZenFlag = True Then
+              MidB = Mid(MidB, 1, Len(MidB) - 1) & " "
+          Else
+              strLastByte = Fix((Asc(Right(MidB, 1)) And &HFF00) / 256)
+              If strLastByte < 0 Then
+                  strLastByte = 256 + strLastByte
+              End If
+              MidB = Mid(MidB, 1, Len(MidB) - 1) & ChrB(strLastByte)
+          End If
+      End If
+  End Function
+
+  Function LeftB(ByVal strSjis, ByVal lngGetByte)
+  
+  blnZenFlag = True
+  
+      LeftB = MidB(strSjis, 1, lngGetByte)
+  End Function
+
+  Function RightB(ByVal strSjis, ByVal lngGetByte)
+  
+  blnZenFlag = True
+  
+      RightB = StrReverse(strSjis)
+      RightB = MidB(RightB, 1, lngGetByte)
+      RightB = StrReverse(RightB)
   End Function
   
   Function LPAD(argStr, argLen)
