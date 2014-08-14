@@ -1353,11 +1353,17 @@ Class FFTGrep
   Public FilterType
   Public Ptn
   Public Opt
+  Private Optv
   'フィルタ初期処理
   Public Sub Initialize(argFFT)
     With argFFT
       FilterName = "FFT_Grep"
       FilterType = "Line"
+      If InStr(Opt,"v") <> 0 Then
+        Optv = True
+      Else
+        Optv = False
+      End If
     End With
   End Sub
   'フィルタ終了処理
@@ -1374,6 +1380,9 @@ Class FFTGrep
   '行処理
   Public Function ProcessLine(argFFT, argLine)
     ProcessLine = argFFT.M(argLine, Ptn, Opt)
+    If Optv Then
+        ProcessLine = Not ProcessLine
+    End If
   End Function
 End Class
 
