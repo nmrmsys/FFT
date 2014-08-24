@@ -46,6 +46,7 @@ Class FileFilterToolkit
   Public ExcludeSet
   Public ModifyOnlySet, ModifyOnlyDBPath, ModifyOnlyDB
   Public ProcessProgress
+  Public OptArgsPrefix
   
   '初期処理
   Private Sub Class_Initialize
@@ -71,6 +72,7 @@ Class FileFilterToolkit
     End With
     Path = GPN(FullName)
     PathMatchOption = "ik"
+    OptArgsPrefix = "--, -, /"
   End Sub
   
   '終了処理
@@ -86,13 +88,17 @@ Class FileFilterToolkit
   
   '引数解析
   Public Sub GetOptArgs(argArgs)
-    '最終的にはオプション解析も行なう
-    
-    '入力ファイル名を取得
+    '簡易オプション解析用
+    sOptArgsPrefixRegExp = "^(" & Replace(Replace(OptArgsPrefix, ",", "|"), " ", "") & ")"
+
+    'パラメータ引数を順に処理
     Dim i
     For i = 0 To argArgs.Count - 1
-      'ファイルかどうか
-      If FileExists(argArgs(i)) Then
+      If M(argArgs(i), sOptArgsPrefixRegExp, "") Then
+        'オプションの場合
+        sOptionName = S(argArgs(i), sOptArgsPrefixRegExp, "", "")
+        Options(sOptionName) = True '取りあえず暫定でTrueをセットしとく
+      ElseIf FileExists(argArgs(i)) Then
         'ファイルの場合
         If Not Options("GetOptArgsDisableAddFile") Then
           '前回より更新のみチェック
