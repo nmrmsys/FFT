@@ -1,8 +1,8 @@
 '===================================================================================================
-'= FFT - File_Filter_Toolkit v0.4.1
+'= FFT - File_Filter_Toolkit v0.4.2
 '===================================================================================================
 '
-' オプション処理 GetOptArgs, GetOptChoice, GetOptPrompt, GetOptDialog 以降は未実装 GetOptIni, GetOptReg
+' オプション処理 GetOptArgs, SetOptDefs, GetOptChoice, GetOptPrompt, GetOptDialog 以降は未実装 GetOptIni, GetOptReg
 ' ファイル操作   AddFiles, SetExclude, SetExcludeList, SetModifyOnly, SetOrder, SetRename, SetBackup
 ' フィルタ定義   SetFilter, ClearFilter, DeleteFilter
 ' 組込フィルタ   Grep, Sed, Tr, Sort, Uniq, Empty, Contains 以降は未実装 Cut, Wc, Cat, Split, Tee, Head, Tail
@@ -14,6 +14,14 @@
 '
 ' 正規表現の     BASP21 http://www.hi-ho.ne.jp/babaq/bregexp.html
 ' リファレンス   RegExp http://www.f3.dion.ne.jp/~element/msaccess/AcResSnippetRegExp.html
+'
+' SetOptDefsの定義例
+'  sOptDefs = "OptionGroup1"              & vbCrLf _
+'           & "    -a, --add"             & vbCrLf _
+'           & "    -b NUM, --bar=NUM"     & vbCrLf _
+'           & ""                          & vbCrLf _
+'           & "OptionGroup2"              & vbCrLf _
+'           & "    -c [STR], --cat[=STR]" & vbCrLf
 '
 'todo
 ' ファイル追加/フィルタ処理中の進捗通知イベントハンドラ
@@ -47,6 +55,8 @@ Class FileFilterToolkit
   Public ModifyOnlySet, ModifyOnlyDBPath, ModifyOnlyDB
   Public ProcessProgress
   Public OptArgsPrefix
+  Public OptDefs
+  Public OptErrs
   
   '初期処理
   Private Sub Class_Initialize
@@ -84,6 +94,19 @@ Class FileFilterToolkit
       XLS.Quit
     End If
     Set FSO = Nothing
+  End Sub
+  
+' SetOptDefsの定義例
+'  sOptDefs = "OptionGroup1"              & vbCrLf _
+'           & "    -a, --add"             & vbCrLf _
+'           & "    -b NUM, --bar=NUM"     & vbCrLf _
+'           & ""                          & vbCrLf _
+'           & "OptionGroup2"              & vbCrLf _
+'           & "    -c [STR], --cat[=STR]" & vbCrLf
+
+  '引数定義セット
+  Public Sub SetOptDefs(argOptDefs)
+
   End Sub
   
   '引数解析
