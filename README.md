@@ -29,11 +29,14 @@ VbLCmtDel.wsf - VBソースコードの行コメント削除
       'ツールキット生成
       Set coFFT = New FileFilterToolkit
       With coFFT
-        Call .GetOptArgs(WScript.Arguments)
-        Call .SetRename("$", ".cln")
-        Call .SetFilter("VbLCmtDel", New VbLCmtDel)
-        Call .Execute
-        'Call .View
+        Call .GetOptArgs(WScript.Arguments)         'wsfファイルに処理ファイルをドロップすると引数展開されるので、それを処理対象ファイルとして登録
+                                                    '  AddFilesメソッドで、特定ディレクトリ下の全ファイルを登録するなども出来ます。
+        Call .SetRename("$", ".cln")                '処理結果を拡張子を.clnにリネームしたファイルに出力
+
+        Call .SetFilter("VbLCmtDel", New VbLCmtDel) '行コメントを削除するフィルタをセット
+
+        Call .Execute                               'ファイル処理を実行
+        'Call .View                                 '処理結果ファイルをメモ帳で表示
       End With
     End Sub
     
